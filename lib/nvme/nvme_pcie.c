@@ -494,17 +494,25 @@ nvme_pcie_ctrlr_map_cmb(struct nvme_pcie_ctrlr *pctrlr)
 	if (!cmbsz.bits.sqs) {
 		pctrlr->ctrlr.opts.use_cmb_sqs = false;
 	}
+	printf("Looks like this controller supports CMB SQEs\n");
 
 	if (cmbsz.bits.rds || cmbsz.bits.wds) {
+		printf("Looks like this controller supports CMB IO\n");
 		pctrlr->cmb_io_data_supported = true;
 	}
 
 	/* HACK: register the 2MB-aligned memory region containing the BAR */
-	mem_register_start = ((uintptr_t)pctrlr->cmb_bar_virt_addr & (0x200000 - 1));
-	mem_register_end = ((uintptr_t)pctrlr->cmb_bar_virt_addr + pctrlr->cmb_size + 0x200000 - 1);
+	mem_register_start = (((uintptr_t)pctrlr->cmb_bar_virt_addr + 0x200000) & ~(0x200000 - 1));
+	mem_register_end = ((uintptr_t)pctrlr->cmb_bar_virt_addr + pctrlr->cmb_size);
 	mem_register_end &= ~(uint64_t)(0x200000 - 1);
 	pctrlr->cmb_mem_register_addr = (void *)mem_register_start;
 	pctrlr->cmb_mem_register_size = mem_register_end - mem_register_start;
+
+	printf("Controller has a %zd byte CMB at address %p.\n", pctrlr->cmb_size,
+	       pctrlr->cmb_bar_virt_addr);
+	printf("Registering a %zd byte CMB at address %p.\n", pctrlr->cmb_mem_register_size,
+	       pctrlr->cmb_mem_register_addr);
+	pctrlr->cmb_current_offset = (uint64_t)pctrlr->cmb_mem_register_addr;
 
 	spdk_mem_register(pctrlr->cmb_mem_register_addr, pctrlr->cmb_mem_register_size);
 
