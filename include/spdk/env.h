@@ -505,6 +505,16 @@ int spdk_mem_map_set_translation(struct spdk_mem_map *map, uint64_t vaddr, uint6
 				 uint64_t translation);
 
 /**
+ * \brief Struct for IO memory regions we wish to register (e.g NVMe CMBs/PMRs)
+ *
+ */
+struct spdk_iomem_region {
+	uint64_t paddr; /* The starting physical address of the IOMEM region */
+	uint64_t size;  /* The size of the IOMEM region */
+	uint64_t vaddr; /* The starting virtual address of the mapping of the IOMEM region */
+};
+
+/**
  * Unregister an address translation.
  *
  * \sa spdk_mem_map_set_translation()
@@ -520,7 +530,7 @@ uint64_t spdk_mem_map_translate(const struct spdk_mem_map *map, uint64_t vaddr);
  * Register the specified memory region for address translation.
  * The memory region must map to pinned huge pages (2MB or greater).
  */
-int spdk_mem_register(void *vaddr, size_t len);
+int spdk_mem_register(void *vaddr, size_t len, struct spdk_iomem_region *iomem);
 
 /**
  * Unregister the specified memory region from vtophys address translation.
