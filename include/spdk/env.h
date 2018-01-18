@@ -332,6 +332,18 @@ size_t spdk_ring_dequeue(struct spdk_ring *ring, void **objs, size_t count);
 
 uint64_t spdk_vtophys(void *buf);
 
+/**
+ * \brief Struct for IO memory regions we wish to register (e.g NVMe CMBs/PMRs)
+ *
+ */
+struct spdk_iomem_region {
+	uint64_t paddr; /* The starting physical address of the IOMEM region */
+	uint64_t size;  /* The size of the IOMEM region */
+	uint64_t vaddr; /* The starting virtual address of the mapping of the IOMEM region */
+};
+
+void spdk_vtophys_add_iomem_region(struct spdk_iomem_region *);
+
 struct spdk_pci_addr {
 	uint32_t			domain;
 	uint8_t				bus;
@@ -503,16 +515,6 @@ void spdk_mem_map_free(struct spdk_mem_map **pmap);
  */
 int spdk_mem_map_set_translation(struct spdk_mem_map *map, uint64_t vaddr, uint64_t size,
 				 uint64_t translation);
-
-/**
- * \brief Struct for IO memory regions we wish to register (e.g NVMe CMBs/PMRs)
- *
- */
-struct spdk_iomem_region {
-	uint64_t paddr; /* The starting physical address of the IOMEM region */
-	uint64_t size;  /* The size of the IOMEM region */
-	uint64_t vaddr; /* The starting virtual address of the mapping of the IOMEM region */
-};
 
 /**
  * Unregister an address translation.

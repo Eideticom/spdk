@@ -233,6 +233,11 @@ spdk_mem_register(void *vaddr, size_t len, struct spdk_iomem_region *iomem)
 
 	pthread_mutex_lock(&g_spdk_mem_map_mutex);
 
+	if (iomem) {
+		spdk_vtophys_add_iomem_region(iomem);
+
+	}
+
 	seg_vaddr = vaddr;
 	seg_len = 0;
 	while (len > 0) {
